@@ -180,7 +180,7 @@ jobs:
       - name: Get release version string
         run: echo "version=$(./bin/buildinfo.py long)" >> $GITHUB_OUTPUT
         id: version
-        
+
       - name: Move files up
         run: mv -b -t ./ ./release/meshtasticd_linux_* ./bin/config-dist.yaml
 
@@ -206,7 +206,7 @@ jobs:
 
       - name: Zip firmware
         run: zip -j -9 -r ./firmware-deb-${{ steps.version.outputs.version }}.zip ./output
-         
+
   gather-artifacts:
     permissions:
       contents: write
@@ -216,7 +216,8 @@ jobs:
       matrix:
         arch: [esp32, esp32s3, esp32c3, esp32c6, nrf52840, rp2040, stm32]
     runs-on: ubuntu-latest
-    needs: [
+    needs:
+      [
         build-esp32,
         build-esp32-s3,
         build-esp32-c3,
@@ -336,7 +337,7 @@ jobs:
           path: ./elfs
 
       # For diagnostics
-      - name: Display structure of downloaded elfs 
+      - name: Display structure of downloaded elfs
         run: ls -lR
 
       - name: Create release
@@ -379,15 +380,15 @@ jobs:
       #    asset_name: meshtasticd_${{ steps.version.outputs.version }}_armhf.deb
       #    asset_content_type: application/vnd.debian.binary-package
 
-       - name: Add raspbian amd64 .deb
-         uses: actions/upload-release-asset@v1
-         env:
-           GITHUB_TOKEN: ${{ github.token }}
-         with:
-           upload_url: ${{ steps.create_release.outputs.upload_url }}
-           asset_path: ./output/meshtasticd_${{ steps.version.outputs.version }}_amd64.deb
-           asset_name: meshtasticd_${{ steps.version.outputs.version }}_amd64.deb
-           asset_content_type: application/vnd.debian.binary-package
+      - name: Add raspbian amd64 .deb
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/meshtasticd_${{ steps.version.outputs.version }}_amd64.deb
+          asset_name: meshtasticd_${{ steps.version.outputs.version }}_amd64.deb
+          asset_content_type: application/vnd.debian.binary-package
 
       - name: Bump version.properties
         run: >-
@@ -469,9 +470,10 @@ jobs:
           path: ./elfs
 
       # For diagnostics
-      - name: Display structure of downloaded elfs 
+      - name: Display structure of downloaded elfs
         run: ls -lR
-          - name: Add bins to release
+
+      - name: Add bins to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
