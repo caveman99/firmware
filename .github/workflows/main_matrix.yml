@@ -246,7 +246,12 @@ jobs:
   release-artifacts:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    needs: [gather-artifacts]
+    needs: [
+        gather-artifacts,
+        # package-raspbian,
+        # package-raspbian-armv7l,
+        package-native,
+      ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -259,32 +264,6 @@ jobs:
       - name: Get release version string
         run: echo "version=$(./bin/buildinfo.py long)" >> $GITHUB_OUTPUT
         id: version
-
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: firmware-*-${{ steps.version.outputs.version }}.zip
-          merge-multiple: true
-          path: ./output
-
-      - name: Device scripts permissions
-        run: |
-          chmod +x ./output/device-install.sh
-          chmod +x ./output/device-update.sh
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-elfs-*-${{ steps.version.outputs.version }}.zip
-          merge-multiple: true
-          path: ./elfs
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: meshtasticd_${{ steps.version.outputs.version }}*.deb
-          merge-multiple: true
-
-      # For diagnostics
-      - name: Display structure of downloaded files
-        run: ls -lR
 
       - name: Create release
         uses: actions/create-release@v1
@@ -325,6 +304,10 @@ jobs:
       #    asset_path: ./output/meshtasticd_${{ steps.version.outputs.version }}_armhf.deb
       #    asset_name: meshtasticd_${{ steps.version.outputs.version }}_armhf.deb
       #    asset_content_type: application/vnd.debian.binary-package
+
+      # For diagnostics
+      - name: Display structure of downloaded files
+        run: ls -lR
 
       - name: Add raspbian amd64 .deb
         uses: actions/upload-release-asset@v1
@@ -397,7 +380,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
+          pattern: firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}
           merge-multiple: true
           path: ./output
 
