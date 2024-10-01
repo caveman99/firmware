@@ -246,6 +246,8 @@ jobs:
   release-artifacts:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' }}
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     needs: [
         gather-artifacts,
         # package-raspbian,
@@ -407,7 +409,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{needs.release-artifacts.outputs.upload_url}}
           asset_path: ./firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_name: firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_content_type: application/zip
@@ -417,7 +419,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{needs.release-artifacts.outputs.upload_url}}
           asset_path: ./debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_name: debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_content_type: application/zip
