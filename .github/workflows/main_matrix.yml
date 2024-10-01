@@ -394,14 +394,20 @@ jobs:
           chmod +x ./output/device-install.sh
           chmod +x ./output/device-update.sh
 
+      - name: Zip firmware
+        run: zip -j -9 -r ./firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip ./output
+
       - uses: actions/download-artifact@v4
         with:
           name: debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           merge-multiple: true
           path: ./elfs
 
+      - name: Zip firmware
+        run: zip -j -9 -r ./debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip ./elfs
+
       # For diagnostics
-      - name: Display structure of downloaded elfs
+      - name: Display structure of downloaded files
         run: ls -lR
 
       - name: Add bins to release
@@ -410,7 +416,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{needs.release-artifacts.outputs.upload_url}}
-          asset_path: ./output/firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
+          asset_path: ./firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_name: firmware-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_content_type: application/zip
 
@@ -420,6 +426,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{needs.release-artifacts.outputs.upload_url}}
-          asset_path: ./elfs/debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
+          asset_path: ./debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_name: debug-elfs-${{matrix.arch}}-${{ steps.version.outputs.version }}.zip
           asset_content_type: application/zip
