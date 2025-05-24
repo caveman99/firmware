@@ -1,9 +1,9 @@
 #pragma once
 
-#define ARCH_STM32WL
+#define ARCH_STM32WL // we assume WL for historical reasons, but actually also support STM32H7xx
 
 //
-// defaults for STM32WL architecture
+// defaults for architecture
 //
 
 #ifndef HAS_RADIO
@@ -24,8 +24,10 @@
 #define HW_VENDOR meshtastic_HardwareModel_PRIVATE_HW
 #endif
 
-/* virtual pins */
+/* virtual pins for WL embedded chip */
+#ifdef STM32WLxx
 #define SX126X_CS 1000
 #define SX126X_DIO1 1001
 #define SX126X_RESET 1003
 #define SX126X_BUSY 1004
+#endif

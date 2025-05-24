@@ -6,7 +6,7 @@
 #define STM32WLx_MAX_POWER 22
 #endif
 
-#ifdef ARCH_STM32WL
+#ifdef STM32WLxx
 
 STM32WLE5JCInterface::STM32WLE5JCInterface(LockingArduinoHal *hal, RADIOLIB_PIN_TYPE cs, RADIOLIB_PIN_TYPE irq,
                                            RADIOLIB_PIN_TYPE rst, RADIOLIB_PIN_TYPE busy)

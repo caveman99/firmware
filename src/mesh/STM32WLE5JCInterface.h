@@ -2,7 +2,7 @@
 
 #include "SX126xInterface.h"
 
-#ifdef ARCH_STM32WL
+#ifdef STM32WLxx
 
 /**
  * Our adapter for STM32WLE5JC radios

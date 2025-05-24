@@ -23,6 +23,7 @@
  */
 
 #include "LittleFS.h"
+#ifdef STM32WLxx
 #include "stm32wlxx_hal_flash.h"
 
 /**********************************************************************************************************************
@@ -31,9 +32,9 @@
 /** This macro is used to suppress compiler messages about a parameter not being used in a function. */
 #define LFS_UNUSED(p) (void)((p))
 
-#define STM32WL_PAGE_SIZE (FLASH_PAGE_SIZE)
-#define STM32WL_PAGE_COUNT (FLASH_PAGE_NB)
-#define STM32WL_FLASH_BASE (FLASH_BASE)
+#define STM32_PAGE_SIZE (FLASH_PAGE_SIZE)
+#define STM32_PAGE_COUNT (FLASH_PAGE_NB)
+#define STM32_FLASH_BASE (FLASH_BASE)
 
 /*
  * FLASH_SIZE from stm32wle5xx.h will read the actual FLASH size from the chip.
@@ -64,7 +65,7 @@ static int _internal_flash_read(const struct lfs_config *c, lfs_block_t block, l
         return LFS_ERR_INVAL;
     }
 
-    lfs_block_t address = LFS_FLASH_ADDR_BASE + (block * STM32WL_PAGE_SIZE + off);
+    lfs_block_t address = LFS_FLASH_ADDR_BASE + (block * STM32_PAGE_SIZE + off);
 
     memcpy(buffer, (void *)address, size);
 
@@ -76,7 +77,7 @@ static int _internal_flash_read(const struct lfs_config *c, lfs_block_t block, l
 // May return LFS_ERR_CORRUPT if the block should be considered bad.
 static int _internal_flash_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    lfs_block_t address = LFS_FLASH_ADDR_BASE + (block * STM32WL_PAGE_SIZE + off);
+    lfs_block_t address = LFS_FLASH_ADDR_BASE + (block * STM32_PAGE_SIZE + off);
     HAL_StatusTypeDef hal_rc = HAL_OK;
     uint32_t dw_count = size / 8;
     uint64_t *bufp = (uint64_t *)buffer;
@@ -116,7 +117,7 @@ static int _internal_flash_prog(const struct lfs_config *c, lfs_block_t block, l
 // May return LFS_ERR_CORRUPT if the block should be considered bad.
 static int _internal_flash_erase(const struct lfs_config *c, lfs_block_t block)
 {
-    lfs_block_t address = LFS_FLASH_ADDR_BASE + (block * STM32WL_PAGE_SIZE);
+    lfs_block_t address = LFS_FLASH_ADDR_BASE + (block * STM32_PAGE_SIZE);
     HAL_StatusTypeDef hal_rc;
     FLASH_EraseInitTypeDef EraseInitStruct = {.TypeErase = FLASH_TYPEERASE_PAGES, .Page = 0, .NbPages = 1};
     uint32_t PAGEError = 0;
@@ -128,7 +129,7 @@ static int _internal_flash_erase(const struct lfs_config *c, lfs_block_t block)
         return LFS_ERR_INVAL;
     }
     /* calculate the absolute page, i.e. what the ST wants */
-    EraseInitStruct.Page = (address - STM32WL_FLASH_BASE) / STM32WL_PAGE_SIZE;
+    EraseInitStruct.Page = (address - STM32_FLASH_BASE) / STM32_PAGE_SIZE;
     _LFS_DBG("Erasing block %d at 0x%08x... ", block, address);
     HAL_FLASH_Unlock();
     hal_rc = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
@@ -182,8 +183,8 @@ bool LittleFS::begin(void)
     // failed to mount, erase all pages then format and mount again
     if (!STM32_LittleFS::begin()) {
         // Erase all pages of internal flash region for Filesystem.
-        for (uint32_t addr = LFS_FLASH_ADDR_BASE; addr < (LFS_FLASH_ADDR_END + 1); addr += STM32WL_PAGE_SIZE) {
-            _internal_flash_erase(&_InternalFSConfig, (addr - LFS_FLASH_ADDR_BASE) / STM32WL_PAGE_SIZE);
+        for (uint32_t addr = LFS_FLASH_ADDR_BASE; addr < (LFS_FLASH_ADDR_END + 1); addr += STM32_PAGE_SIZE) {
+            _internal_flash_erase(&_InternalFSConfig, (addr - LFS_FLASH_ADDR_BASE) / STM32_PAGE_SIZE);
         }
 
         // lfs format
@@ -196,3 +197,5 @@ bool LittleFS::begin(void)
 
     return true;
 }
+
+#endif /* STM32WLxx */

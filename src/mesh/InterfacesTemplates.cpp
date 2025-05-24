@@ -21,7 +21,7 @@ template class LR11x0Interface<LR1110>;
 template class LR11x0Interface<LR1120>;
 template class LR11x0Interface<LR1121>;
 #endif
-#ifdef ARCH_STM32WL
+#ifdef STM32WLxx
 template class SX126xInterface<STM32WLx>;
 #endif
 
